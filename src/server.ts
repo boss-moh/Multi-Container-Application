@@ -1,7 +1,7 @@
 import express, { type Response } from "express";
+import { PORT } from "./config";
 
 const app = express();
-const PORT = 3000;
 
 app.get("/", (_, res: Response) => {
   res.json({ message: "Hello TypeScript API 🚀" });
