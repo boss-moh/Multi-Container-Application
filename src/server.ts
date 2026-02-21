@@ -1,11 +1,11 @@
-import express, { type Response } from "express";
 import { connectDB, PORT } from "@/config";
+import routes from "@/routes";
+import express from "express";
 
 const app = express();
 
-app.get("/", (_, res: Response) => {
-  res.json({ message: "Hello TypeScript API 🚀" });
-});
+app.use(express.json());
+app.use(routes);
 
 const startServer = async () => {
   try {
