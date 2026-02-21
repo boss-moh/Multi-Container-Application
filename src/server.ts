@@ -1,5 +1,5 @@
 import express, { type Response } from "express";
-import { connectDB, PORT } from "./config";
+import { connectDB, PORT } from "@/config";
 
 const app = express();
 
