@@ -5,10 +5,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --env-file=.env  --require tsconfig-paths/register src/server.ts ",
-    "build": "tsc",
-    "start": "node dist/server.js",
+    "build": "tsc  && tsc-alias ",
+    "start": "node --env-file=.env  dist/server.js",
     "seed": "ts-node-dev --respawn --env-file=.env --require tsconfig-paths/register src/seed.ts"
-
   },
   "repository": {
     "type": "git",
@@ -26,7 +25,8 @@
     "express": "^5.2.1",
     "express-async-handler": "^1.2.0",
     "express-validator": "^7.3.1",
-    "mongoose": "^9.2.1"
+    "mongoose": "^9.2.1",
+    "tsc-alias": "^1.8.16"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
