@@ -1,4 +1,4 @@
-import { connectDB, PORT } from "@/config";
+import { connectDB, PORT } from "@/config/index";
 import routes from "@/routes";
 import express from "express";
 
