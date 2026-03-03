@@ -1,4 +1,4 @@
-import { body, ValidationChain } from "express-validator";
+import { body, ValidationChain, param } from "express-validator";
 
 /**
  * Validation rules for creating a new todo
@@ -75,4 +75,8 @@ export const editTodoRules = (): ValidationChain[] => {
       .isBoolean()
       .withMessage("Completed must be a boolean"),
   ];
+};
+
+export const idRules = (): ValidationChain[] => {
+  return [param("id").isMongoId().withMessage("Invalid ID format")];
 };
