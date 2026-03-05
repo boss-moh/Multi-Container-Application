@@ -8,7 +8,7 @@ import {
   updateTodoController,
 } from "@/controllers";
 import { validator } from "@/middleware";
-import { createTodoRules, editTodoRules } from "@/utils";
+import { createTodoRules, editTodoRules, idRules } from "@/utils";
 
 const router = Router();
 
@@ -16,15 +16,15 @@ const router = Router();
 router.get("/", getAllTodosController);
 
 // GET todo by id
-router.get("/:id", getTodoByIdController);
+router.get("/:id", idRules(), validator, getTodoByIdController);
 
 // POST create todo
 router.post("/", createTodoRules(), validator, createTodoController);
 
 // PUT update todo
-router.put("/:id", editTodoRules(), validator, updateTodoController);
+router.put("/:id", idRules(), editTodoRules(), validator, updateTodoController);
 
 // DELETE todo
-router.delete("/:id", deleteTodoController);
+router.delete("/:id", idRules(), validator, deleteTodoController);
 
 export default router;

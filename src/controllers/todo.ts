@@ -1,95 +1,95 @@
 import { Request, Response } from "express";
 import { TodoUtils } from "@/models";
-import { asyncHandler } from "@/libs";
+import createEntityNotFoundError from "@/errors/EntityNotFoundError";
 
-export const createTodoController = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const todo = await TodoUtils.create(req.body);
+export const createTodoController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const todo = await TodoUtils.create(req.body);
 
-    res.status(201).json({
-      message: "Todo created successfully",
-      data: todo,
-    });
-  },
-);
+  res.status(201).json({
+    message: "Todo created successfully",
+    data: todo,
+  });
+};
 
-export const getAllTodosController = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const todos = await TodoUtils.find();
+export const getAllTodosController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const todos = await TodoUtils.find();
 
-    res.status(200).json({
-      message: "Todos retrieved successfully",
-      count: todos.length,
-      data: todos,
-    });
-  },
-);
+  res.status(200).json({
+    message: "Todos retrieved successfully",
+    count: todos.length,
+    data: todos,
+  });
+};
 
-export const getTodoByIdController = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
-    const todo = await TodoUtils.findById(id);
+export const getTodoByIdController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { id } = req.params;
+  const todo = await TodoUtils.findById(id);
 
-    if (!todo) {
-      res.status(404).json({ message: "Todo not found" });
-      return;
-    }
+  if (!todo) {
+    throw createEntityNotFoundError("Todo");
+  }
 
-    res
-      .status(200)
-      .json({ message: "Todo retrieved successfully", data: todo });
-  },
-);
+  res.status(200).json({ message: "Todo retrieved successfully", data: todo });
+};
 
-export const updateTodoController = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
+export const updateTodoController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { id } = req.params;
 
-    const todo = await TodoUtils.findById(id);
-    if (!todo) {
-      res.status(404).json({ message: "Todo not found" });
-      return;
-    }
-    todo.set(req.body);
+  const todo = await TodoUtils.findById(id);
+  if (!todo) {
+    throw createEntityNotFoundError("Todo");
+  }
 
-    const updatedTodo = await todo.save();
-    res
-      .status(200)
-      .json({ message: "Todo updated successfully", data: updatedTodo });
-  },
-);
+  todo.set(req.body);
+  const updatedTodo = await todo.save();
+  res
+    .status(200)
+    .json({ message: "Todo updated successfully", data: updatedTodo });
+};
 
-export const deleteTodoController = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
-    const deletedTodo = await TodoUtils.findByIdAndDelete(id);
+export const deleteTodoController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { id } = req.params;
+  const deletedTodo = await TodoUtils.findByIdAndDelete(id);
 
-    if (!deletedTodo) {
-      res.status(404).json({ message: "Todo not found" });
-      return;
-    }
+  if (!deletedTodo) {
+    throw createEntityNotFoundError("Todo");
+  }
 
-    res
-      .status(200)
-      .json({ message: "Todo deleted successfully", data: deletedTodo });
-  },
-);
+  res
+    .status(200)
+    .json({ message: "Todo deleted successfully", data: deletedTodo });
+};
 
-export const toggleTodoCompletionController = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
-    const { id } = req.params;
-    const todo = await TodoUtils.findById(id);
+export const toggleTodoCompletionController = async (
+  req: Request,
+  res: Response,
+): Promise<void> => {
+  const { id } = req.params;
+  const todo = await TodoUtils.findById(id);
 
-    if (!todo) {
-      res.status(404).json({ message: "Todo not found" });
-      return;
-    }
+  if (!todo) {
+    throw createEntityNotFoundError("Todo");
+  }
 
-    todo.completed = !todo.completed;
-    const updatedTodo = await todo.save();
-    res.status(200).json({
-      message: "Todo completion status toggled successfully",
-      data: updatedTodo,
-    });
-  },
-);
+  todo.completed = !todo.completed;
+  const updatedTodo = await todo.save();
+  res.status(200).json({
+    message: "Todo completion status toggled successfully",
+    data: updatedTodo,
+  });
+};
