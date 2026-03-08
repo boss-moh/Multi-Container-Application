@@ -1,26 +1,7 @@
 import { connectDB } from "@/config";
 import { TodoUtils } from "@/models";
+import {sampleTodos} from "@/contants";
 
-const sampleTodos = [
-  {
-    title: "Buy groceries",
-    description: "Milk, bread, eggs, and fruits",
-    priority: "medium",
-    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 3), // 3 days
-  },
-  {
-    title: "Finish project report",
-    description: "Complete the final section and review",
-    priority: "high",
-    dueDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
-  },
-  {
-    title: "Weekly workout",
-    description: "3 sessions this week",
-    priority: "low",
-    completed: false,
-  },
-];
 
 async function seed() {
   try {

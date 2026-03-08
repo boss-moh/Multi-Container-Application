@@ -1,14 +1,6 @@
-import routes from "@/routes";
-import express from "express";
 import { connectDB, PORT } from "@/config/index";
 
-import { errorHandler } from "./middleware";
-
-const app = express();
-
-app.use(express.json());
-app.use(routes);
-app.use(errorHandler);
+import app from "@/app";
 
 const startServer = async () => {
   try {
@@ -23,4 +15,5 @@ const startServer = async () => {
   }
 };
 
-startServer();
+
+ startServer();
