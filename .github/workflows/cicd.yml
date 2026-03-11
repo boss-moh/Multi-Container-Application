@@ -1,0 +1,151 @@
+name: CI/CD Pipeline — Node.js to Render
+
+on:
+  push:
+    branches:
+      - main # Runs the workflow on push to the main branch
+  pull_request:
+    branches:
+      - main # Runs the workflow on pull request to the main branch
+
+# Only run when a PR is actually merged (not just closed)
+jobs:
+  # ─────────────────────────────────────────
+  # STAGE 1 — Install & Cache
+  # ─────────────────────────────────────────
+  install:
+    name: 📦 Install Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Cache node_modules
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+  # ─────────────────────────────────────────
+  # STAGE 2 — Lint & Format
+  # ─────────────────────────────────────────
+  lint:
+    name: 🔍 Lint & Format Check
+    runs-on: ubuntu-latest
+    needs: install
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Run ESLint
+        run: npm run lint
+        # Tip: add "lint": "eslint . --ext .js" to your package.json scripts
+
+  # ─────────────────────────────────────────
+  # STAGE 3 — Tests
+  # ─────────────────────────────────────────
+  test:
+    name: 🧪 Run Tests
+    runs-on: ubuntu-latest
+    needs: lint
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Run tests with coverage
+        run: npm test -- --coverage
+        # Tip: add "test": "jest" to your package.json scripts
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 7
+
+  # ─────────────────────────────────────────
+  # STAGE 4 — Security Audit
+  # ─────────────────────────────────────────
+  security:
+    name: 🔒 Security Audit
+    runs-on: ubuntu-latest
+    needs: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Restore cache
+        uses: actions/cache@v4
+        with:
+          path: node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('package-lock.json') }}
+
+      - name: Audit dependencies
+        run: npm audit --audit-level=high
+        # Fails the pipeline if any HIGH or CRITICAL vulnerabilities are found
+
+  # ─────────────────────────────────────────
+  # STAGE 5 — Deploy to Render
+  # ─────────────────────────────────────────
+  # deploy:
+  #   name: 🚀 Deploy to Render
+  #   runs-on: ubuntu-latest
+  #   needs: security
+  #   if: github.event.pull_request.merged == true
+  #   environment:
+  #     name: production
+  #     url: https://your-app.onrender.com  # 👈 replace with your Render URL
+
+  #   steps:
+  #     - name: Trigger Render Deploy Hook
+  #       run: |
+  #         curl --silent --fail --show-error \
+  #           -X POST "${{ secrets.RENDER_DEPLOY_HOOK_URL }}"
+  #       # 👆 Add RENDER_DEPLOY_HOOK_URL to your GitHub repo secrets:
+  #       # GitHub Repo → Settings → Secrets → Actions → New repository secret
+
+  #     - name: Wait for Render deploy to complete
+  #       run: |
+  #         echo "Deploy triggered. Render is building your app..."
+  #         echo "Monitor at: https://dashboard.render.com"
+
+  #     - name: Notify success
+  #       if: success()
+  #       run: |
+  #         echo "✅ Deployment to Render succeeded!"
+  #         echo "Triggered by PR merge: ${{ github.event.pull_request.title }}"
+  #         echo "Merged by: ${{ github.event.pull_request.merged_by.login }}"
